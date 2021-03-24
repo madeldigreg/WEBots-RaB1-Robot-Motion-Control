@@ -1,0 +1,163 @@
+
+
+unsigned char ucMode;
+
+double dManualSpeed;
+double dForwardSpeed;
+double dReverseSpeed;
+double dLeftSpeed;
+double dRightSpeed;
+
+
+
+
+void setupMotion (void)
+{
+	
+  dManualSpeed = 0;
+ dForwardSpeed = 256;
+ dReverseSpeed = 256;
+ dLeftSpeed = 185;
+ dRightSpeed = 185;
+  
+  //setup PWM for motors
+  ledcAttachPin(MOTORLEFTa, 1); // assign Motors pins to channels
+  ledcAttachPin(MOTORLEFTb, 2);
+  ledcAttachPin(MOTORRIGHTa, 3);
+  ledcAttachPin(MOTORRIGHTb, 4);
+
+    // Initialize channels 
+  // channels 0-15, resolution 1-16 bits, freq limits depend on resolution
+  // ledcSetup(uint8_t channel, uint32_t freq, uint8_t resolution_bits);
+  ledcSetup(1, 20000, 8); // 20mS PWM, 8-bit resolution
+  ledcSetup(2, 20000, 8);
+  ledcSetup(3, 20000, 8);
+  ledcSetup(4, 20000, 8);
+  //uiMotorSpeedLeft = uiStop;
+  //uiMotorSpeedRight = uiStop;
+  //uiMotorCommandLeft = uiStop;
+  //uiMotorCommandRight = uiStop;
+
+  //servo setup
+
+   ledcSetup(5, 50, 8); // channel 5, 50 Hz, 16-bit width
+   ledcAttachPin(25, 5);   // GPIO 25 assigned to channel 1
+   ledcWrite(5,185);
+
+   
+
+	
+   ucMode = 0;
+ //mode 0 i/p and o/p displayed
+ //mode 1 Kp
+ //Mode 2 Ki
+ //Mode 3 Kd
+ //Mode 4 Manual forward
+ //mode 5 manual reverse
+ //mode 6 maunal left
+ //mode 7 maunal right
+  //dManualSpeed = 0;
+	
+}
+
+//void move(double dspeed, int minAbsSpeed)
+void move(double dspeed)
+{
+    int  iPrintOnce;
+      
+    
+   if((btFellover))
+   {
+     
+     ledcWrite(2,0);   //stop
+     ledcWrite(1,0);
+     ledcWrite(4,0);
+     ledcWrite(3,0);
+     if(iPrintOnce == 0)
+     {
+      iPrintOnce = 25;
+      Serial.println(F("Move fellover "));
+     }
+     
+   }
+   else
+   {
+     switch(ucMode)
+      {
+        case 0:
+        {
+          ledcWrite(2,0);
+          ledcWrite(1,0);
+          ledcWrite(4,0);
+          ledcWrite(3,0);
+          if(iPrintOnce != 0)
+           {
+            iPrintOnce = 0;
+            Serial.print(F("stop "));
+            Serial.println(dspeed);
+           }
+          break;
+        }
+        case 4:
+        {
+          ledcWrite(2,0);
+          ledcWrite(1,dspeed);
+          ledcWrite(4,0);
+          ledcWrite(3,dspeed);
+          if(iPrintOnce != 4)
+           {
+            iPrintOnce = 4;
+            Serial.print(F("Forward "));
+            Serial.println(dspeed);
+           }
+          break;
+        }
+        case 5:
+        {
+          ledcWrite(1,0);
+          ledcWrite(2,dspeed);
+          ledcWrite(3,0);
+          ledcWrite(4,dspeed);
+          if(iPrintOnce != 5)
+           {
+            iPrintOnce = 5;
+            Serial.print(F("Reverse "));
+            Serial.println(dspeed);
+           }
+          break;
+        }
+        case 6:
+        {
+          ledcWrite(2,0);
+          ledcWrite(1,dspeed);
+          ledcWrite(3,0);
+          ledcWrite(4,dspeed);
+          if(iPrintOnce != 6)
+           {
+            iPrintOnce = 6;
+            Serial.print(F("Left "));
+            Serial.println(dspeed);
+           }
+          break;
+        }
+        case 7:
+        {
+          ledcWrite(1,0);
+          ledcWrite(2,dspeed);
+          ledcWrite(4,0);
+          ledcWrite(3,dspeed);
+          if(iPrintOnce != 7)
+           {
+            iPrintOnce = 7;
+            Serial.print(F("Right "));
+            Serial.println(dspeed);
+           }
+          break;
+        }
+      }
+       
+       
+        
+   }
+ 
+}
